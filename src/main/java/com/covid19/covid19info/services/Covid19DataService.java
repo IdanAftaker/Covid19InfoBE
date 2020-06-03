@@ -2,6 +2,8 @@ package com.covid19.covid19info.services;
 
 import com.covid19.covid19info.models.Country;
 import com.covid19.covid19info.models.Summary;
+import com.covid19.covid19info.repositories.CountriesRepository;
+import com.covid19.covid19info.repositories.SummaryRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -14,7 +16,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -30,20 +31,18 @@ public class Covid19DataService {
     @Autowired
     private RestService restService;
 
+    @Autowired
+    SummaryRepository summaryRepository;
+
+    @Autowired
+    CountriesRepository countriesRepository;
+
     public ResponseEntity<Summary> getSummary() {
-        JsonNode node = jsonData.get("Global");
-        Summary summary = Mapper.convertValue(node, Summary.class);
-        return ResponseEntity.ok(summary);
+        return ResponseEntity.ok(summaryRepository.findTopByOrderByIdDesc());
     }
 
     public ResponseEntity<List<Country>> getCountries(){
-        JsonNode nodes = jsonData.get("Countries");
-        List<Country> countries = new ArrayList<>();
-        nodes.forEach( country -> {
-            Country c = Mapper.convertValue(country, Country.class);
-            countries.add(c);
-        });
-        return ResponseEntity.ok(countries);
+        return ResponseEntity.ok(countriesRepository.findAll());
     }
 
 
@@ -53,8 +52,21 @@ public class Covid19DataService {
         ResponseEntity<String> responseData = restService.restTemplate().getForEntity(URL, String.class);
         try {
             this.jsonData = Mapper.readTree(Objects.requireNonNull(responseData.getBody()));
+            populateData();
         } catch (JsonProcessingException e) {
             LOG.error("Can't fetch data!");
         }
+    }
+
+    private void populateData() {
+        //populate summary
+        JsonNode node = jsonData.get("Global");
+        summaryRepository.save(Mapper.convertValue(node, Summary.class));
+        LOG.error("summary data populated");
+
+        //populate countries
+        node = jsonData.get("Countries");
+        node.forEach(country -> countriesRepository.save(Mapper.convertValue(country, Country.class)));
+        LOG.error("countries data populated");
     }
 }

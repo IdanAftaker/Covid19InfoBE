@@ -3,19 +3,46 @@ package com.covid19.covid19info.models;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import javax.persistence.*;
+
 @JsonIgnoreProperties(ignoreUnknown = true)
+@Entity
 public class Country {
 
-    @JsonProperty("Country") private String country;
-    @JsonProperty("CountryCode") private String countryCode;
-    @JsonProperty("Slug") private String slug;
-    @JsonProperty("NewConfirmed") private int newConfirmed;
-    @JsonProperty("TotalConfirmed") private int totalConfirmed;
-    @JsonProperty("NewDeaths") private int newDeaths;
-    @JsonProperty("TotalDeaths") private int totalDeaths;
-    @JsonProperty("NewRecovered") private int newRecovered;
-    @JsonProperty("TotalRecovered") private int totalRecovered;
-    @JsonProperty("Date") private String date;
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
+
+    @JsonProperty("Country")
+    private String country;
+
+    @JsonProperty("CountryCode")
+    private String countryCode;
+
+    @JsonProperty("Slug")
+    @Column(unique = true)
+    private String slug;
+
+    @JsonProperty("NewConfirmed")
+    private int newConfirmed;
+
+    @JsonProperty("TotalConfirmed")
+    private int totalConfirmed;
+
+    @JsonProperty("NewDeaths")
+    private int newDeaths;
+
+    @JsonProperty("TotalDeaths")
+    private int totalDeaths;
+
+    @JsonProperty("NewRecovered")
+    private int newRecovered;
+
+    @JsonProperty("TotalRecovered")
+    private int totalRecovered;
+
+    @JsonProperty("Date")
+    private String date;
 
     public Country() { }
 
