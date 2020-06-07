@@ -1,0 +1,8 @@
+{
+  "properties": [
+    {
+      "name": "fetch.data.url",
+      "type": "java.lang.String",
+      "description": "Description for fetch.data.url."
+  }
+] }
